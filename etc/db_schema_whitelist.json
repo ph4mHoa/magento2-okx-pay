@@ -1,0 +1,33 @@
+{
+    "joepham_okxpay_payment": {
+        "column": {
+            "entity_id": true,
+            "order_id": true,
+            "method": true,
+            "status": true,
+            "amount": true,
+            "usd_amount": true,
+            "coin": true,
+            "reference": true,
+            "payer": true,
+            "tx_hash": true,
+            "access_token": true,
+            "start_block": true,
+            "expires_at": true,
+            "paid_at": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "JOEPHAM_OKXPAY_PAYMENT_METHOD_STATUS_AMOUNT": true,
+            "JOEPHAM_OKXPAY_PAYMENT_STATUS_EXPIRES_AT": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "JOEPHAM_OKXPAY_PAYMENT_ORDER_ID": true,
+            "JOEPHAM_OKXPAY_PAYMENT_ACCESS_TOKEN": true,
+            "JOEPHAM_OKXPAY_PAYMENT_REFERENCE": true,
+            "JOEPHAM_OKXPAY_PAYMENT_ORDER_ID_SALES_ORDER_ENTITY_ID": true
+        }
+    }
+}

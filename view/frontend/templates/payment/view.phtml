@@ -1,0 +1,482 @@
+<?php
+/**
+ * Copyright (c) Joe Pham. Licensed under the MIT License, see LICENSE.
+ */
+
+/** @var \JoePham\OkxPay\Block\Payment\View $block */
+/** @var \Magento\Framework\Escaper $escaper */
+/** @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer */
+
+$payment = $block->getPayment();
+if ($payment === null) {
+    return;
+}
+$order = $block->getOrder();
+$wallet = $block->isWallet();
+$amount = $block->getAmount();
+$tokens = $wallet ? $block->getTokens() : [];
+$coinLabel = $wallet ? $tokens[0]['symbol'] : implode(' / ', $block->getCoinNames());
+$status = $payment->getDisplayStatus();
+$extra = bcsub($amount, bcadd((string)$payment->getUsdAmount(), '0', 4), 4);
+$messages = [
+    'pending' => __('Waiting for your payment. This page updates by itself.'),
+    'submitted' => __('Transaction sent. Waiting for it to be confirmed on X Layer...'),
+    'walletConfirm' => __('Confirm the payment in your wallet.'),
+    'walletRejected' => __('The payment was rejected in the wallet. You can try again.'),
+    'walletError' => __('The wallet could not send the payment.'),
+    'paid' => __('Payment received. Thank you, your order is confirmed!'),
+    'expired' => __(
+        'This payment has expired and the order will be cancelled. '
+        . 'If you already sent the money, contact us with order number %1.',
+        $order->getIncrementId()
+    ),
+    'canceled' => __('This payment was cancelled.'),
+    'late' => __(
+        'Your payment arrived after the payment window closed. We will contact you about order %1.',
+        $order->getIncrementId()
+    ),
+    'copied' => __('Copied'),
+    'cancelConfirm' => __('Cancel this payment? Only do this if you have not sent the money.'),
+];
+$messages = array_map('strval', $messages);
+?>
+<div class="okxpay" id="okxpay" data-status="<?= $escaper->escapeHtmlAttr($status) ?>"
+     data-config="<?= $escaper->escapeHtmlAttr($block->getScriptConfig()) ?>"
+     data-messages="<?= $escaper->escapeHtmlAttr((string)json_encode($messages, JSON_UNESCAPED_UNICODE)) ?>">
+    <div class="okxpay__card">
+        <div class="okxpay__head">
+            <div>
+                <p class="okxpay__eyebrow">
+                    <?= $wallet ? $escaper->escapeHtml(__('OKX Wallet on X Layer'))
+                        : $escaper->escapeHtml(__('OKX app transfer')) ?>
+                </p>
+                <h2 class="okxpay__title">
+                    <?= $escaper->escapeHtml(__('Order #%1', $order->getIncrementId())) ?>
+                </h2>
+                <p class="okxpay__total">
+                    <?= $escaper->escapeHtml(__('Order total %1', $order->formatPriceTxt($order->getGrandTotal()))) ?>
+                </p>
+            </div>
+            <div class="okxpay__timer okxpay--open">
+                <span><?= $escaper->escapeHtml(__('Time left')) ?></span>
+                <strong data-role="timer">--:--</strong>
+            </div>
+        </div>
+
+        <div class="okxpay__status" aria-live="polite">
+            <span class="okxpay__icon" aria-hidden="true"></span>
+            <span data-role="status-text"><?= $escaper->escapeHtml($messages[$status] ?? $messages['pending']) ?></span>
+        </div>
+
+        <div class="okxpay__body">
+            <div class="okxpay__main">
+                <?php if (count($tokens) > 1): ?>
+                    <div class="okxpay__tokens okxpay--open" role="radiogroup"
+                         aria-label="<?= $escaper->escapeHtmlAttr(__('Token')) ?>">
+                        <?php foreach ($tokens as $index => $token): ?>
+                            <button type="button" role="radio"
+                                    class="okxpay__token<?= $index === 0 ? ' is-active' : '' ?>"
+                                    aria-checked="<?= $index === 0 ? 'true' : 'false' ?>"
+                                    data-token-index="<?= (int)$index ?>">
+                                <?= $escaper->escapeHtml($token['symbol']) ?>
+                            </button>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+
+                <div class="okxpay__field">
+                    <span class="okxpay__label"><?= $escaper->escapeHtml(__('Send exactly')) ?></span>
+                    <div class="okxpay__value okxpay__value--amount">
+                        <span>
+                            <span class="okxpay__amount" data-role="amount"><?= $escaper->escapeHtml($amount) ?></span>
+                            <span class="okxpay__coin" data-role="coin"><?= $escaper->escapeHtml($coinLabel) ?></span>
+                        </span>
+                        <button type="button" class="okxpay__copy" data-copy="<?= $escaper->escapeHtmlAttr($amount) ?>">
+                            <?= $escaper->escapeHtml(__('Copy')) ?>
+                        </button>
+                    </div>
+                    <p class="okxpay__hint">
+                        <?= $escaper->escapeHtml(__(
+                            'The last digits (+%1) identify your order. Send this exact amount in one transfer, '
+                            . 'or the payment cannot be matched automatically.',
+                            $extra
+                        )) ?>
+                    </p>
+                </div>
+
+                <?php if ($wallet): ?>
+                    <div class="okxpay__field">
+                        <span class="okxpay__label"><?= $escaper->escapeHtml(__('To this address on X Layer')) ?></span>
+                        <div class="okxpay__value okxpay__value--mono">
+                            <span data-role="address"><?= $escaper->escapeHtml($block->getWalletAddress()) ?></span>
+                            <button type="button" class="okxpay__copy"
+                                    data-copy="<?= $escaper->escapeHtmlAttr($block->getWalletAddress()) ?>">
+                                <?= $escaper->escapeHtml(__('Copy')) ?>
+                            </button>
+                        </div>
+                        <p class="okxpay__hint">
+                            <?= $escaper->escapeHtml(__('Network: X Layer (chain ID 196). Token contract:')) ?>
+                            <code data-role="token-address"><?= $escaper->escapeHtml($tokens[0]['address']) ?></code>
+                        </p>
+                    </div>
+                    <div class="okxpay__wallet okxpay--open">
+                        <button type="button" class="action primary okxpay__pay" data-role="wallet-pay" hidden>
+                            <?= $escaper->escapeHtml(__('Pay with OKX Wallet')) ?>
+                        </button>
+                        <p class="okxpay__hint" data-role="wallet-hint">
+                            <?= $escaper->escapeHtml(__(
+                                'On your phone, open this page in the OKX Wallet app to pay in one tap. '
+                                . 'You can also send the amount from any wallet or exchange that supports X Layer.'
+                            )) ?>
+                        </p>
+                    </div>
+                <?php else: ?>
+                    <div class="okxpay__field">
+                        <span class="okxpay__label"><?= $escaper->escapeHtml(__('To this OKX account')) ?></span>
+                        <div class="okxpay__value">
+                            <span data-role="recipient"><?= $escaper->escapeHtml($block->getRecipient()) ?></span>
+                            <button type="button" class="okxpay__copy"
+                                    data-copy="<?= $escaper->escapeHtmlAttr($block->getRecipient()) ?>">
+                                <?= $escaper->escapeHtml(__('Copy')) ?>
+                            </button>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <ol class="okxpay__steps okxpay--open">
+                    <?php if ($wallet): ?>
+                        <li><?= $escaper->escapeHtml(__('Pick the token you hold on X Layer.')) ?></li>
+                        <li><?= $escaper->escapeHtml(__(
+                            'Tap Pay with OKX Wallet and approve, or send the exact amount to the address above.'
+                        )) ?></li>
+                        <li><?= $escaper->escapeHtml(__(
+                            'Send on X Layer only: a transfer on another network cannot be detected.'
+                        )) ?></li>
+                    <?php else: ?>
+                        <li><?= $escaper->escapeHtml(__(
+                            'Open the OKX app and start a withdrawal of %1.',
+                            implode(' / ', $block->getCoinNames())
+                        )) ?></li>
+                        <li><?= $escaper->escapeHtml(__(
+                            'Choose the internal transfer to an OKX account, not an on-chain withdrawal.'
+                        )) ?></li>
+                        <li><?= $escaper->escapeHtml(__(
+                            'Enter the account and the exact amount shown here, then confirm.'
+                        )) ?></li>
+                    <?php endif; ?>
+                    <li><?= $escaper->escapeHtml(__(
+                        'This page confirms the payment by itself, usually within a minute.'
+                    )) ?></li>
+                </ol>
+            </div>
+
+            <div class="okxpay__side okxpay--open">
+                <figure class="okxpay__qr">
+                    <?= /* @noEscape */ $block->getQrSvg() ?>
+                    <figcaption>
+                        <?= $wallet ? $escaper->escapeHtml(__('Scan the address with your wallet app.'))
+                            : $escaper->escapeHtml(__('Scan to continue on your phone.')) ?>
+                    </figcaption>
+                </figure>
+            </div>
+        </div>
+
+        <div class="okxpay__foot">
+            <form class="okxpay--open" method="post" action="<?= $escaper->escapeUrl($block->getCancelUrl()) ?>"
+                  data-role="cancel-form">
+                <input type="hidden" name="form_key" value="<?= $escaper->escapeHtmlAttr($block->getFormKey()) ?>"/>
+                <input type="hidden" name="token" value="<?= $escaper->escapeHtmlAttr($payment->getAccessToken()) ?>"/>
+                <button type="submit" class="action okxpay__cancel">
+                    <?= $escaper->escapeHtml(__('Cancel payment and return to cart')) ?>
+                </button>
+            </form>
+            <a class="okxpay__continue okxpay--closed" href="<?= $escaper->escapeUrl($block->getBaseUrl()) ?>">
+                <?= $escaper->escapeHtml(__('Continue shopping')) ?>
+            </a>
+        </div>
+    </div>
+</div>
+<?php
+$css = <<<'CSS'
+.okxpay{--okx-ink:#121212;--okx-muted:#5c5f66;--okx-line:#e4e4e7;--okx-soft:#f5f5f6;--okx-ok:#157f3b;
+--okx-warn:#a15c07;max-width:900px;margin:0 auto 40px;color:var(--okx-ink);font-size:15px;line-height:1.5}
+.okxpay__card{background:#fff;border:1px solid var(--okx-line);border-radius:16px;overflow:hidden;
+box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.okxpay__head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:20px 24px;
+border-bottom:1px solid var(--okx-line)}
+.okxpay__eyebrow{margin:0 0 2px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+color:var(--okx-muted)}
+.okxpay__title{margin:0;font-size:22px;font-weight:600;line-height:1.3}
+.okxpay__total{margin:2px 0 0;color:var(--okx-muted)}
+.okxpay__timer{min-width:96px;text-align:right;font-size:12px;color:var(--okx-muted)}
+.okxpay__timer strong{display:block;font-size:26px;font-weight:600;color:var(--okx-ink);
+font-variant-numeric:tabular-nums}
+.okxpay__body{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:28px;padding:24px}
+.okxpay__tokens{display:inline-flex;gap:4px;padding:4px;margin-bottom:18px;background:var(--okx-soft);
+border-radius:999px}
+.okxpay__token{border:0;background:transparent;border-radius:999px;padding:6px 16px;font-weight:600;cursor:pointer;
+color:var(--okx-muted)}
+.okxpay__token.is-active{background:#121212;color:#fff}
+.okxpay__field{margin-bottom:18px}
+.okxpay__label{display:block;margin-bottom:6px;font-size:13px;font-weight:600;color:var(--okx-muted)}
+.okxpay__value{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;
+background:var(--okx-soft);border-radius:12px;word-break:break-all}
+.okxpay__value--amount{padding:14px 16px}
+.okxpay__amount{font-size:30px;font-weight:700;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.okxpay__coin{margin-left:6px;font-size:18px;font-weight:600}
+.okxpay__value--mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:14px}
+.okxpay__copy{flex:none;border:1px solid var(--okx-line);background:#fff;border-radius:8px;padding:6px 12px;
+font-size:13px;font-weight:600;cursor:pointer}
+.okxpay__copy.is-done{border-color:var(--okx-ok);color:var(--okx-ok)}
+.okxpay__hint{margin:6px 0 0;font-size:13px;color:var(--okx-muted)}
+.okxpay__hint code{font-size:12px;word-break:break-all}
+.okxpay__wallet{margin:4px 0 18px}
+.okxpay__pay{width:100%;padding:14px 18px;font-size:16px;border-radius:12px}
+.okxpay__steps{margin:0;padding-left:20px;color:var(--okx-muted)}
+.okxpay__steps li{margin-bottom:4px}
+.okxpay__qr{margin:0;text-align:center}
+.okxpay__qr svg{width:100%;max-width:200px;height:auto;border:1px solid var(--okx-line);border-radius:12px;
+padding:8px;background:#fff}
+.okxpay__qr figcaption{margin-top:8px;font-size:13px;color:var(--okx-muted)}
+.okxpay__status{display:flex;align-items:center;gap:10px;margin:18px 24px 0;padding:12px 16px;border-radius:12px;
+background:var(--okx-soft);font-weight:600}
+.okxpay__icon{flex:none;width:18px;height:18px;border-radius:50%;border:2px solid var(--okx-line);
+border-top-color:var(--okx-ink);animation:okxpay-spin .9s linear infinite}
+.okxpay[data-status=paid] .okxpay__status{background:#e8f5ec;color:var(--okx-ok)}
+.okxpay[data-status=paid] .okxpay__icon{position:relative;animation:none;border:0;background:var(--okx-ok)}
+.okxpay[data-status=paid] .okxpay__icon:after{content:"";position:absolute;left:6px;top:3px;width:5px;height:9px;
+border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.okxpay[data-status=expired] .okxpay__status,.okxpay[data-status=canceled] .okxpay__status,
+.okxpay[data-status=late] .okxpay__status{background:#fdf3e7;color:var(--okx-warn)}
+.okxpay[data-status=expired] .okxpay__icon,.okxpay[data-status=canceled] .okxpay__icon,
+.okxpay[data-status=late] .okxpay__icon{animation:none;border-color:var(--okx-warn)}
+.okxpay__foot{padding:16px 24px 22px;text-align:center}
+.okxpay__cancel{background:none;border:0;color:var(--okx-muted);text-decoration:underline;cursor:pointer;
+font-size:14px}
+.okxpay:not([data-status=pending]) .okxpay--open{display:none}
+.okxpay[data-status=pending] .okxpay--closed{display:none}
+.okxpay:not([data-status=pending]) .okxpay__body{opacity:.45;pointer-events:none}
+@keyframes okxpay-spin{to{transform:rotate(360deg)}}
+@media (max-width:767px){.okxpay__body{grid-template-columns:1fr;gap:18px;padding:18px}
+.okxpay__head{padding:16px 18px}.okxpay__status{margin:14px 18px 0}.okxpay__amount{font-size:26px}
+.okxpay__qr svg{max-width:170px}}
+CSS;
+$js = <<<'JS'
+(function () {
+    'use strict';
+    var root = document.getElementById('okxpay');
+    if (!root || !window.fetch) {
+        return;
+    }
+    var cfg = JSON.parse(root.getAttribute('data-config'));
+    var messages = JSON.parse(root.getAttribute('data-messages'));
+    var status = cfg.status;
+    var deadline = Date.now() + cfg.secondsLeft * 1000;
+    var tokenIndex = 0;
+    var submitted = false;
+
+    function find(selector) {
+        return root.querySelector(selector);
+    }
+
+    function show(state, text) {
+        root.setAttribute('data-status', state);
+        find('[data-role="status-text"]').textContent = text || messages[state] || messages.pending;
+    }
+
+    function tick() {
+        var left = Math.max(0, Math.round((deadline - Date.now()) / 1000));
+        find('[data-role="timer"]').textContent = Math.floor(left / 60) + ':' + ('0' + left % 60).slice(-2);
+    }
+
+    function update(data) {
+        if (!data || !data.status) {
+            return;
+        }
+        if (typeof data.secondsLeft === 'number') {
+            deadline = Date.now() + data.secondsLeft * 1000;
+        }
+        if (data.status === status) {
+            return;
+        }
+        status = data.status;
+        show(status);
+        if (status === 'paid' && data.redirect) {
+            setTimeout(function () {
+                window.location.assign(data.redirect);
+            }, 1500);
+        }
+    }
+
+    function poll() {
+        var url = cfg.statusUrl + (cfg.statusUrl.indexOf('?') < 0 ? '?' : '&')
+            + 'token=' + encodeURIComponent(cfg.token);
+        fetch(url, {credentials: 'same-origin', headers: {'Accept': 'application/json'}})
+            .then(function (response) {
+                return response.json();
+            })
+            .then(update)
+            .catch(function () {})
+            .then(function () {
+                if (status === 'pending') {
+                    setTimeout(poll, cfg.pollInterval);
+                }
+            });
+    }
+
+    function post(url, data) {
+        var body = new URLSearchParams();
+        body.append('form_key', cfg.formKey);
+        Object.keys(data).forEach(function (key) {
+            body.append(key, data[key]);
+        });
+        return fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {'Accept': 'application/json'},
+            body: body
+        })
+            .then(function (response) {
+                return response.json();
+            });
+    }
+
+    function copy(value) {
+        if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(value);
+        }
+        var area = document.createElement('textarea');
+        area.value = value;
+        area.setAttribute('readonly', '');
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        try {
+            document.execCommand('copy');
+        } catch (e) {}
+        document.body.removeChild(area);
+        return Promise.resolve();
+    }
+
+    root.querySelectorAll('[data-copy]').forEach(function (button) {
+        var label = button.textContent;
+        button.addEventListener('click', function () {
+            copy(button.getAttribute('data-copy')).catch(function () {}).then(function () {
+                button.textContent = messages.copied;
+                button.classList.add('is-done');
+                setTimeout(function () {
+                    button.textContent = label;
+                    button.classList.remove('is-done');
+                }, 1500);
+            });
+        });
+    });
+
+    root.querySelectorAll('[data-token-index]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            tokenIndex = parseInt(button.getAttribute('data-token-index'), 10);
+            root.querySelectorAll('[data-token-index]').forEach(function (other) {
+                other.classList.toggle('is-active', other === button);
+                other.setAttribute('aria-checked', other === button ? 'true' : 'false');
+            });
+            find('[data-role="coin"]').textContent = cfg.wallet.tokens[tokenIndex].symbol;
+            find('[data-role="token-address"]').textContent = cfg.wallet.tokens[tokenIndex].address;
+        });
+    });
+
+    function provider() {
+        return window.okxwallet || window.ethereum || null;
+    }
+
+    function switchChain(wallet) {
+        var chain = cfg.wallet;
+        return wallet.request({method: 'wallet_switchEthereumChain', params: [{chainId: chain.chainId}]})
+            .catch(function (error) {
+                var original = error && error.data && error.data.originalError;
+                var code = error && (error.code || (original && original.code));
+                if (code !== 4902) {
+                    throw error;
+                }
+                return wallet.request({method: 'wallet_addEthereumChain', params: [{
+                    chainId: chain.chainId,
+                    chainName: chain.chainName,
+                    nativeCurrency: {name: 'OKB', symbol: 'OKB', decimals: 18},
+                    rpcUrls: [chain.rpcUrl],
+                    blockExplorerUrls: [chain.explorerUrl]
+                }]});
+            });
+    }
+
+    function payWithWallet(button) {
+        var wallet = provider();
+        var token = cfg.wallet.tokens[tokenIndex];
+        if (!wallet) {
+            return;
+        }
+        button.disabled = true;
+        show('pending', messages.walletConfirm);
+        wallet.request({method: 'eth_requestAccounts'})
+            .then(function (accounts) {
+                return switchChain(wallet).then(function () {
+                    return accounts[0];
+                });
+            })
+            .then(function (from) {
+                return wallet.request({method: 'eth_sendTransaction', params: [{
+                    from: from,
+                    to: token.address,
+                    data: cfg.wallet.data,
+                    value: '0x0'
+                }]});
+            })
+            .then(function (txHash) {
+                submitted = true;
+                show('pending', messages.submitted);
+                return post(cfg.submitUrl, {token: cfg.token, tx_hash: txHash}).then(update);
+            })
+            .catch(function (error) {
+                if (!submitted) {
+                    show('pending', error && error.code === 4001
+                        ? messages.walletRejected
+                        : messages.walletError + (error && error.message ? ' (' + error.message + ')' : ''));
+                }
+            })
+            .then(function () {
+                button.disabled = submitted;
+            });
+    }
+
+    var payButton = find('[data-role="wallet-pay"]');
+    if (payButton) {
+        var detect = function () {
+            var found = !!provider();
+            payButton.hidden = !found;
+            find('[data-role="wallet-hint"]').hidden = found;
+        };
+        detect();
+        setTimeout(detect, 600);
+        payButton.addEventListener('click', function () {
+            payWithWallet(payButton);
+        });
+    }
+
+    var cancelForm = find('[data-role="cancel-form"]');
+    if (cancelForm) {
+        cancelForm.addEventListener('submit', function (event) {
+            if (!window.confirm(messages.cancelConfirm)) {
+                event.preventDefault();
+            }
+        });
+    }
+
+    tick();
+    setInterval(tick, 1000);
+    if (status === 'pending') {
+        setTimeout(poll, cfg.pollInterval);
+    }
+})();
+JS;
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('style', [], $css, false) ?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $js, false) ?>

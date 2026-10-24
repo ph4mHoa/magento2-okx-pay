@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright (c) Joe Pham. Licensed under the MIT License, see LICENSE.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- OKX app transfer -->
+    <virtualType name="JoePhamOkxAppFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">JoePham\OkxPay\Model\Config::APP</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">JoePhamOkxAppInfo</argument>
+            <argument name="valueHandlerPool" xsi:type="object">JoePhamOkxAppValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">JoePhamOkxAppValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">JoePhamOkxPayCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxAppGatewayConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">JoePham\OkxPay\Model\Config::APP</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxAppConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">JoePhamOkxAppGatewayConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxAppValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">JoePhamOkxAppConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxAppCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">JoePhamOkxAppGatewayConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxAppAvailabilityValidator" type="JoePham\OkxPay\Gateway\Validator\AvailabilityValidator">
+        <arguments>
+            <argument name="method" xsi:type="const">JoePham\OkxPay\Model\Config::APP</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxAppValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">JoePhamOkxAppCountryValidator</item>
+                <item name="availability" xsi:type="string">JoePhamOkxAppAvailabilityValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxAppInfo" type="JoePham\OkxPay\Block\Info">
+        <arguments>
+            <argument name="config" xsi:type="object">JoePhamOkxAppGatewayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- OKX Wallet on X Layer -->
+    <virtualType name="JoePhamOkxWalletFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">JoePham\OkxPay\Model\Config::WALLET</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">JoePhamOkxWalletInfo</argument>
+            <argument name="valueHandlerPool" xsi:type="object">JoePhamOkxWalletValueHandlerPool</argument>
+            <argument name="validatorPool" xsi:type="object">JoePhamOkxWalletValidatorPool</argument>
+            <argument name="commandPool" xsi:type="object">JoePhamOkxPayCommandPool</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxWalletGatewayConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">JoePham\OkxPay\Model\Config::WALLET</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxWalletConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">JoePhamOkxWalletGatewayConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxWalletValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">JoePhamOkxWalletConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxWalletCountryValidator" type="Magento\Payment\Gateway\Validator\CountryValidator">
+        <arguments>
+            <argument name="config" xsi:type="object">JoePhamOkxWalletGatewayConfig</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxWalletAvailabilityValidator" type="JoePham\OkxPay\Gateway\Validator\AvailabilityValidator">
+        <arguments>
+            <argument name="method" xsi:type="const">JoePham\OkxPay\Model\Config::WALLET</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxWalletValidatorPool" type="Magento\Payment\Gateway\Validator\ValidatorPool">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="country" xsi:type="string">JoePhamOkxWalletCountryValidator</item>
+                <item name="availability" xsi:type="string">JoePhamOkxWalletAvailabilityValidator</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxWalletInfo" type="JoePham\OkxPay\Block\Info">
+        <arguments>
+            <argument name="config" xsi:type="object">JoePhamOkxWalletGatewayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Both methods only place the order; the payment is settled from the transfer. -->
+    <virtualType name="JoePhamOkxPayCommandPool" type="Magento\Payment\Gateway\Command\CommandPool">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="initialize" xsi:type="string">JoePham\OkxPay\Gateway\Command\InitializeCommand</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="JoePhamOkxPayLogHandler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/joepham_okxpay.log</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="JoePhamOkxPayLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="name" xsi:type="string">joepham_okxpay</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">JoePhamOkxPayLogHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="JoePham\OkxPay\Model\Okx\Client">
+        <arguments>
+            <argument name="logger" xsi:type="object">JoePhamOkxPayLogger</argument>
+        </arguments>
+    </type>
+    <type name="JoePham\OkxPay\Model\Okx\DepositMatcher">
+        <arguments>
+            <argument name="logger" xsi:type="object">JoePhamOkxPayLogger</argument>
+        </arguments>
+    </type>
+    <type name="JoePham\OkxPay\Model\XLayer\RpcClient">
+        <arguments>
+            <argument name="logger" xsi:type="object">JoePhamOkxPayLogger</argument>
+        </arguments>
+    </type>
+    <type name="JoePham\OkxPay\Model\XLayer\TransferMatcher">
+        <arguments>
+            <argument name="logger" xsi:type="object">JoePhamOkxPayLogger</argument>
+        </arguments>
+    </type>
+    <type name="JoePham\OkxPay\Model\PaymentRegistrar">
+        <arguments>
+            <argument name="logger" xsi:type="object">JoePhamOkxPayLogger</argument>
+        </arguments>
+    </type>
+    <type name="JoePham\OkxPay\Model\PaymentProcessor">
+        <arguments>
+            <argument name="logger" xsi:type="object">JoePhamOkxPayLogger</argument>
+        </arguments>
+    </type>
+    <type name="JoePham\OkxPay\Controller\Payment\Start">
+        <arguments>
+            <argument name="logger" xsi:type="object">JoePhamOkxPayLogger</argument>
+        </arguments>
+    </type>
+    <type name="JoePham\OkxPay\Controller\Payment\Submit">
+        <arguments>
+            <argument name="logger" xsi:type="object">JoePhamOkxPayLogger</argument>
+        </arguments>
+    </type>
+    <type name="JoePham\OkxPay\Controller\Payment\Cancel">
+        <arguments>
+            <argument name="logger" xsi:type="object">JoePhamOkxPayLogger</argument>
+        </arguments>
+    </type>
+</config>

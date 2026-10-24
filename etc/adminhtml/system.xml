@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright (c) Joe Pham. Licensed under the MIT License, see LICENSE.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="joepham_okx_app" translate="label comment" sortOrder="920" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>OKX App Transfer</label>
+                <comment><![CDATA[Shoppers send USDT or USDC from the OKX app to your OKX account (internal transfer). Each order gets a unique amount, and a read-only OKX API key finds the transfer and invoices the order.]]></comment>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1"
+                       showInWebsite="1" canRestore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Title</label>
+                </field>
+                <field id="recipient" translate="label comment" type="text" sortOrder="30" showInDefault="1">
+                    <label>OKX Account Shown to Shoppers</label>
+                    <comment>The email, phone number or UID shoppers send the transfer to.</comment>
+                    <validate>required-entry</validate>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="api_key" translate="label comment" type="obscure" sortOrder="40" showInDefault="1">
+                    <label>API Key</label>
+                    <comment>Create an API key with the Read permission only, on the same OKX account.</comment>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="api_secret" translate="label" type="obscure" sortOrder="50" showInDefault="1">
+                    <label>API Secret</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="api_passphrase" translate="label" type="obscure" sortOrder="60" showInDefault="1">
+                    <label>API Passphrase</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="api_url" translate="label comment" type="text" sortOrder="70" showInDefault="1"
+                       canRestore="1">
+                    <label>API URL</label>
+                    <comment><![CDATA[https://openapi.okx.com for global accounts. Accounts on a regional OKX site use its domain, e.g. https://eea.okx.com, https://us.okx.com or https://tr.okx.com.]]></comment>
+                    <validate>validate-url</validate>
+                </field>
+                <field id="coins" translate="label comment" type="multiselect" sortOrder="80" showInDefault="1"
+                       canRestore="1">
+                    <label>Accepted Coins</label>
+                    <comment>Priced 1:1 in US dollars.</comment>
+                    <source_model>JoePham\OkxPay\Model\Config\Source\AppCoins</source_model>
+                </field>
+                <field id="payment_window" translate="label comment" type="text" sortOrder="90" showInDefault="1"
+                       canRestore="1">
+                    <label>Payment Window (minutes)</label>
+                    <comment>Unpaid orders are cancelled after this time.</comment>
+                    <validate>required-entry validate-digits validate-digits-range digits-range-5-1440</validate>
+                </field>
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="100"
+                       showInDefault="1" showInWebsite="1" canRestore="1">
+                    <label>Payment from Applicable Countries</label>
+                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                </field>
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="110"
+                       showInDefault="1" showInWebsite="1">
+                    <label>Payment from Specific Countries</label>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <can_be_empty>1</can_be_empty>
+                    <depends>
+                        <field id="allowspecific">1</field>
+                    </depends>
+                </field>
+                <field id="min_order_total" translate="label" type="text" sortOrder="120" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Minimum Order Total</label>
+                    <validate>validate-number validate-zero-or-greater</validate>
+                </field>
+                <field id="max_order_total" translate="label" type="text" sortOrder="130" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Maximum Order Total</label>
+                    <validate>validate-number validate-zero-or-greater</validate>
+                </field>
+                <field id="sort_order" translate="label" type="text" sortOrder="140" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Sort Order</label>
+                    <frontend_class>validate-number</frontend_class>
+                </field>
+                <field id="debug" translate="label comment" type="select" sortOrder="150" showInDefault="1"
+                       canRestore="1">
+                    <label>Debug</label>
+                    <comment>Log OKX API calls to var/log/joepham_okxpay.log.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+            <group id="joepham_okx_wallet" translate="label comment" sortOrder="921" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>OKX Wallet on X Layer</label>
+                <comment><![CDATA[Shoppers pay USDT or USDG on X Layer (chain ID 196) from OKX Wallet, straight to your wallet address. Each order gets a unique amount and the module reads the transfer from the chain.]]></comment>
+                <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1"
+                       showInWebsite="1" canRestore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1"
+                       showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Title</label>
+                </field>
+                <field id="address" translate="label comment" type="text" sortOrder="30" showInDefault="1">
+                    <label>Receiving Wallet Address</label>
+                    <comment>The X Layer (EVM) address that receives payments, 0x followed by 40 hex characters. Only the address is needed, never a private key.</comment>
+                    <backend_model>JoePham\OkxPay\Model\Config\Backend\WalletAddress</backend_model>
+                    <depends>
+                        <field id="active">1</field>
+                    </depends>
+                </field>
+                <field id="tokens" translate="label" type="multiselect" sortOrder="40" showInDefault="1"
+                       canRestore="1">
+                    <label>Accepted Tokens</label>
+                    <source_model>JoePham\OkxPay\Model\Config\Source\XLayerTokens</source_model>
+                </field>
+                <field id="rpc_url" translate="label comment" type="text" sortOrder="50" showInDefault="1"
+                       canRestore="1">
+                    <label>X Layer RPC URL</label>
+                    <comment>JSON-RPC endpoint used to read transfers.</comment>
+                    <validate>validate-url</validate>
+                </field>
+                <field id="confirmations" translate="label comment" type="text" sortOrder="60" showInDefault="1"
+                       canRestore="1">
+                    <label>Confirmations</label>
+                    <comment>Blocks to wait before a payment counts. X Layer makes about one block per second.</comment>
+                    <validate>required-entry validate-digits validate-digits-range digits-range-1-1000</validate>
+                </field>
+                <field id="log_block_range" translate="label comment" type="text" sortOrder="70" showInDefault="1"
+                       canRestore="1">
+                    <label>Blocks per Log Query</label>
+                    <comment>The public RPC answers at most 100 blocks per eth_getLogs call.</comment>
+                    <validate>required-entry validate-digits validate-digits-range digits-range-1-10000</validate>
+                </field>
+                <field id="payment_window" translate="label comment" type="text" sortOrder="90" showInDefault="1"
+                       canRestore="1">
+                    <label>Payment Window (minutes)</label>
+                    <comment>Unpaid orders are cancelled after this time.</comment>
+                    <validate>required-entry validate-digits validate-digits-range digits-range-5-1440</validate>
+                </field>
+                <field id="allowspecific" translate="label" type="allowspecific" sortOrder="100"
+                       showInDefault="1" showInWebsite="1" canRestore="1">
+                    <label>Payment from Applicable Countries</label>
+                    <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                </field>
+                <field id="specificcountry" translate="label" type="multiselect" sortOrder="110"
+                       showInDefault="1" showInWebsite="1">
+                    <label>Payment from Specific Countries</label>
+                    <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                    <can_be_empty>1</can_be_empty>
+                    <depends>
+                        <field id="allowspecific">1</field>
+                    </depends>
+                </field>
+                <field id="min_order_total" translate="label" type="text" sortOrder="120" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Minimum Order Total</label>
+                    <validate>validate-number validate-zero-or-greater</validate>
+                </field>
+                <field id="max_order_total" translate="label" type="text" sortOrder="130" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Maximum Order Total</label>
+                    <validate>validate-number validate-zero-or-greater</validate>
+                </field>
+                <field id="sort_order" translate="label" type="text" sortOrder="140" showInDefault="1"
+                       showInWebsite="1">
+                    <label>Sort Order</label>
+                    <frontend_class>validate-number</frontend_class>
+                </field>
+                <field id="debug" translate="label comment" type="select" sortOrder="150" showInDefault="1"
+                       canRestore="1">
+                    <label>Debug</label>
+                    <comment>Log RPC calls to var/log/joepham_okxpay.log.</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

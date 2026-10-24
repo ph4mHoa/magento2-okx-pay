@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright (c) Joe Pham. Licensed under the MIT License, see LICENSE.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <block class="JoePham\OkxPay\Block\Payment\View" name="joepham.okxpay.payment"
+                   template="JoePham_OkxPay::payment/view.phtml" cacheable="false"/>
+        </referenceContainer>
+    </body>
+</page>

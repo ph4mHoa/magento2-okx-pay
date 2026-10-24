@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright (c) Joe Pham. Licensed under the MIT License, see LICENSE.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <joepham_okx_app>
+                <model>JoePhamOkxAppFacade</model>
+                <active>0</active>
+                <title>OKX App transfer (USDT)</title>
+                <payment_action>authorize</payment_action>
+                <is_gateway>1</is_gateway>
+                <can_initialize>1</can_initialize>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>0</can_use_internal>
+                <order_place_redirect_url>joepham_okxpay/payment/start</order_place_redirect_url>
+                <api_url>https://openapi.okx.com</api_url>
+                <api_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <api_secret backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <api_passphrase backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <coins>USDT</coins>
+                <payment_window>30</payment_window>
+                <allowspecific>0</allowspecific>
+                <debug>0</debug>
+                <paymentInfoKeys>okx_amount,okx_received,okx_reference,okx_payer</paymentInfoKeys>
+                <privateInfoKeys>okx_reference,okx_payer</privateInfoKeys>
+            </joepham_okx_app>
+            <joepham_okx_wallet>
+                <model>JoePhamOkxWalletFacade</model>
+                <active>0</active>
+                <title>OKX Wallet (USDT, USDG on X Layer)</title>
+                <payment_action>authorize</payment_action>
+                <is_gateway>1</is_gateway>
+                <can_initialize>1</can_initialize>
+                <can_use_checkout>1</can_use_checkout>
+                <can_use_internal>0</can_use_internal>
+                <order_place_redirect_url>joepham_okxpay/payment/start</order_place_redirect_url>
+                <tokens>USDT0,USDG</tokens>
+                <rpc_url>https://rpc.xlayer.tech</rpc_url>
+                <confirmations>3</confirmations>
+                <log_block_range>100</log_block_range>
+                <payment_window>30</payment_window>
+                <allowspecific>0</allowspecific>
+                <debug>0</debug>
+                <paymentInfoKeys>okx_amount,okx_received,okx_reference,okx_payer</paymentInfoKeys>
+                <privateInfoKeys>okx_reference,okx_payer</privateInfoKeys>
+            </joepham_okx_wallet>
+        </payment>
+    </default>
+</config>

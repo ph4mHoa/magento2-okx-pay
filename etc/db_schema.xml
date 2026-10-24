@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright (c) Joe Pham. Licensed under the MIT License, see LICENSE.
+ */
+-->
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="joepham_okxpay_payment" resource="sales" engine="innodb" comment="OKX payments">
+        <column xsi:type="int" name="entity_id" unsigned="true" nullable="false" identity="true" comment="ID"/>
+        <column xsi:type="int" name="order_id" unsigned="true" nullable="false" comment="Order ID"/>
+        <column xsi:type="varchar" name="method" length="32" nullable="false" comment="Payment method code"/>
+        <column xsi:type="varchar" name="status" length="16" nullable="false" default="pending"
+                comment="pending, paid, expired, canceled or late"/>
+        <column xsi:type="decimal" name="amount" precision="20" scale="8" unsigned="false" nullable="false"
+                comment="Amount to pay, unique among open payments"/>
+        <column xsi:type="decimal" name="usd_amount" precision="20" scale="8" unsigned="false" nullable="false"
+                comment="Order total in US dollars"/>
+        <column xsi:type="varchar" name="coin" length="16" nullable="true" comment="Coin or token received"/>
+        <column xsi:type="varchar" name="reference" length="128" nullable="true"
+                comment="OKX deposit ID or transaction hash and log index"/>
+        <column xsi:type="varchar" name="payer" length="255" nullable="true" comment="Sender"/>
+        <column xsi:type="varchar" name="tx_hash" length="66" nullable="true" comment="Transaction sent by the wallet"/>
+        <column xsi:type="varchar" name="access_token" length="64" nullable="false" comment="Payment page token"/>
+        <column xsi:type="bigint" name="start_block" unsigned="true" nullable="true"
+                comment="X Layer block when the payment was created"/>
+        <!-- datetime in UTC: a timestamp column without a default would be reset on every update by MariaDB. -->
+        <column xsi:type="datetime" name="expires_at" on_update="false" nullable="false" comment="Expires at (UTC)"/>
+        <column xsi:type="datetime" name="paid_at" on_update="false" nullable="true" comment="Paid at (UTC)"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Created at"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Updated at"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="JOEPHAM_OKXPAY_PAYMENT_ORDER_ID">
+            <column name="order_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="JOEPHAM_OKXPAY_PAYMENT_ACCESS_TOKEN">
+            <column name="access_token"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="JOEPHAM_OKXPAY_PAYMENT_REFERENCE">
+            <column name="reference"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="JOEPHAM_OKXPAY_PAYMENT_ORDER_ID_SALES_ORDER_ENTITY_ID"
+                    table="joepham_okxpay_payment" column="order_id" referenceTable="sales_order"
+                    referenceColumn="entity_id" onDelete="CASCADE"/>
+        <index referenceId="JOEPHAM_OKXPAY_PAYMENT_METHOD_STATUS_AMOUNT" indexType="btree">
+            <column name="method"/>
+            <column name="status"/>
+            <column name="amount"/>
+        </index>
+        <index referenceId="JOEPHAM_OKXPAY_PAYMENT_STATUS_EXPIRES_AT" indexType="btree">
+            <column name="status"/>
+            <column name="expires_at"/>
+        </index>
+    </table>
+</schema>
