@@ -1,5 +1,33 @@
 # OKX Crypto Payment Gateway for Magento 2 (OKX App & X Layer)
 
+Let shoppers pay your Magento 2 store in USDT straight from the **OKX app** or **OKX Wallet**. The money goes to
+your own OKX account or wallet, and each order is marked as paid by itself, usually within a minute.
+
+> [!NOTE]
+> **Beta.** Tested end to end on Magento 2.4.8 against the bundled OKX and X Layer test server, not yet with real
+> funds. Before you go live, pay one small real order as shown in the
+> [setup guide](docs/setup-guide.md#5-test-with-a-small-real-order).
+
+![A shopper pays a Magento 2 order with an OKX app transfer](docs/okx-pay-app-checkout.gif)
+
+<sub>Recorded against the test server, so no real funds moved.</sub>
+
+**How shoppers pay**
+
+1. At checkout, they choose *OKX App transfer* or *OKX Wallet* and place the order.
+2. A payment page shows the exact amount to send (for example **35.6001 USDT**), where to send it, and a QR code.
+3. They send it from the OKX app, or confirm it in OKX Wallet. The page turns green and the order is confirmed.
+
+**How you set it up**, with no coding once your developer has installed the extension:
+
+[![Watch the 3-minute setup video](docs/okx-pay-setup-video.png)](docs/okx-pay-setup-walkthrough.mp4)
+
+The [step-by-step setup guide](docs/setup-guide.md) shows, with screenshots, where to find each value in OKX, where
+to paste it in Magento, and how to check everything with a $1 order. A personal OKX account is enough, and the
+wallet method needs only your wallet address.
+
+## Two ways to pay
+
 **Magento 2 OKX Pay** is an open-source payment extension that lets a Magento 2 / Adobe Commerce 2.4 store
 **accept USDT, USDC and USDG from OKX users**, in two ways that can be offered side by side:
 
@@ -14,17 +42,9 @@
 Each order gets its own amount (the total plus 0.0001 to 0.0999, e.g. $35.60 becomes **35.6001 USDT**), so a
 payment is matched to its order without a memo, and the order is invoiced automatically.
 
-**Setting it up for the first time?** The [step-by-step setup guide](docs/setup-guide.md) walks a store owner
-through it with screenshots and a 3-minute video: where to get the API key, UID and wallet address, where to paste
-them in Magento, a $1 test order, and what shoppers see.
-
-| Shopper: OKX App transfer | Shopper: OKX Wallet on X Layer |
+| Shopper: OKX Wallet on X Layer | Merchant: the paid order in the admin |
 | --- | --- |
-| ![Pay a Magento 2 order with an OKX app transfer](docs/okx-pay-app-checkout.gif) | ![Pay a Magento 2 order with OKX Wallet on X Layer](docs/okx-pay-wallet-checkout.gif) |
-
-| Merchant: the paid order in the admin |
-| --- |
-| ![OKX payment details on a Magento 2 order](docs/okx-pay-admin-order.gif) |
+| ![Pay a Magento 2 order with OKX Wallet on X Layer](docs/okx-pay-wallet-checkout.gif) | ![OKX payment details on a Magento 2 order](docs/okx-pay-admin-order.gif) |
 
 <sub>Recorded on Magento 2.4.8-p2 (Luma) against the bundled OKX and X Layer mock server, so no real funds moved;
 the wallet is a simulated stand-in for OKX Wallet. MP4 versions: [app](docs/okx-pay-app-checkout.mp4),
