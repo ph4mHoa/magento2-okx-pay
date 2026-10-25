@@ -4,7 +4,7 @@ This guide is for store owners and needs no coding. It shows where to get each v
 Magento, how to check everything with a $1 order, and what your shoppers see. Your developer installs the extension
 first ([installation](../README.md#installation)).
 
-[![Watch the setup video (2:54)](okx-pay-setup-video.png)](okx-pay-setup-walkthrough.mp4)
+[![Watch the setup video (2:54)](okx-pay-setup-video.png)](https://ph4mhoa.github.io/magento2-okx-pay/okx-pay-setup-walkthrough.mp4)
 
 <sub>The video and screenshots were made on a test store connected to the extension's test server, so no real money
 moved. Values such as `payments@example.com` are placeholders: use your own.</sub>

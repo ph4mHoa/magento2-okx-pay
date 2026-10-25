@@ -20,7 +20,7 @@ your own OKX account or wallet, and each order is marked as paid by itself, usua
 
 **How you set it up**, with no coding once your developer has installed the extension:
 
-[![Watch the 3-minute setup video](docs/okx-pay-setup-video.png)](docs/okx-pay-setup-walkthrough.mp4)
+[![Watch the 3-minute setup video](docs/okx-pay-setup-video.png)](https://ph4mhoa.github.io/magento2-okx-pay/okx-pay-setup-walkthrough.mp4)
 
 The [step-by-step setup guide](docs/setup-guide.md) shows, with screenshots, where to find each value in OKX, where
 to paste it in Magento, and how to check everything with a $1 order. A personal OKX account is enough, and the
