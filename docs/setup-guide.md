@@ -22,7 +22,7 @@ moved. Values such as `payments@example.com` are placeholders: use your own.</su
 | For | You need |
 | --- | --- |
 | Both methods | Access to the Magento admin. Magento cron running every minute (ask your developer or host). A US dollar exchange rate if your store currency is not USD (*Stores › Currency Rates*). |
-| OKX App Transfer | An OKX account for the store, with identity verification done. |
+| OKX App Transfer | An OKX account for the store, with identity verification done. A personal account works; OKX has no separate merchant account. In some regions OKX lets an account create API keys only when it holds at least 100 USD in assets ([OKX API FAQ](https://www.okx.com/help/api-faq)). |
 | OKX Wallet on X Layer | OKX Wallet (in the OKX app under *Web3*, or the browser extension), or any wallet with an address starting with `0x` that you control. |
 
 You can turn on one method or both.
@@ -34,7 +34,8 @@ only, the key cannot trade or move money.
 
 1. On a computer, log in at [okx.com](https://www.okx.com). If your account is on a regional OKX site (for example
    the European or US site), log in there instead.
-2. Open the profile menu at the top right, choose **API**, and create a new API key.
+2. Open the profile menu at the top right, choose **API and connections**, then **Create API key**. In the app:
+   menu › **API** › **Create API key** ([OKX API FAQ](https://www.okx.com/help/api-faq)).
 3. Fill in the form:
 
    | Field | Enter |

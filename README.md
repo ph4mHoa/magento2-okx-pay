@@ -90,8 +90,9 @@ at most every 10 seconds per method, and the cron job does the same every minute
 - The Luma checkout (also used by Hyvä themes through the Luma checkout fallback). Hyvä Checkout (Magewire) needs a
   separate compatibility module, which is not included.
 - For **OKX App Transfer**: an OKX account for the store and an API key of that account with the *Read*
-  permission only, created in the API section of your OKX account. Note the passphrase you choose; binding the key
-  to your server's IP address is recommended.
+  permission only, created under *API and connections* in your OKX account. Note the passphrase you choose; binding
+  the key to your server's IP address is recommended. In some regions OKX requires at least 100 USD in assets on the
+  account before it allows API keys ([OKX API FAQ](https://www.okx.com/help/api-faq)).
 - For **OKX Wallet on X Layer**: an EVM address you control, for example an OKX Wallet account. Shoppers pay the
   network fee in OKB on X Layer.
 
