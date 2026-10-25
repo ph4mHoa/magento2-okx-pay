@@ -14,6 +14,10 @@
 Each order gets its own amount (the total plus 0.0001 to 0.0999, e.g. $35.60 becomes **35.6001 USDT**), so a
 payment is matched to its order without a memo, and the order is invoiced automatically.
 
+**Setting it up for the first time?** The [step-by-step setup guide](docs/setup-guide.md) walks a store owner
+through it with screenshots and a 3-minute video: where to get the API key, UID and wallet address, where to paste
+them in Magento, a $1 test order, and what shoppers see.
+
 | Shopper: OKX App transfer | Shopper: OKX Wallet on X Layer |
 | --- | --- |
 | ![Pay a Magento 2 order with an OKX app transfer](docs/okx-pay-app-checkout.gif) | ![Pay a Magento 2 order with OKX Wallet on X Layer](docs/okx-pay-wallet-checkout.gif) |
@@ -155,9 +159,12 @@ scope).
 
 ## Testing without an OKX account
 
-The module ships a mock server that behaves like the OKX API v5 deposit history (it checks the request signatures
-the way OKX does) and like an X Layer JSON-RPC node (a chain that grows by one block per second), so both methods
-can be tried end to end without real funds.
+OKX has no sandbox for this: demo trading does not support deposits and withdrawals
+([OKX API documentation](https://www.okx.com/docs-v5/en/), *Demo Trading*), and the wallet method watches X Layer
+mainnet (chain ID 196) only. The module therefore ships a mock server that behaves like the OKX API v5 deposit
+history (it checks the request signatures the way OKX does) and like an X Layer JSON-RPC node (a chain that grows by
+one block per second), so both methods can be tried end to end without real funds. Before going live, also pay one
+small real order, as described in the [setup guide](docs/setup-guide.md#5-test-with-a-small-real-order).
 
 ```bash
 # 1. Start the mock (several workers, so page polls and cron can run at the same time)
